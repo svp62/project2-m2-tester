@@ -10,11 +10,16 @@ export function Content() {
     
     function getNewAddresses() {
         React.useEffect(() => {
-            Socket.on('addresses received', (data) => {
-                console.log("Received addresses from server: " + data['allAddresses']);
-                setAddresses(data['allAddresses']);
-            })
+            Socket.on('addresses received', updateAddresses);
+            return () => {
+                Socket.off('addresses received', updateAddresses);
+            }
         });
+    }
+    
+    function updateAddresses(data) {
+        console.log("Received addresses from server: " + data['allAddresses']);
+        setAddresses(data['allAddresses']);
     }
     
     getNewAddresses();
