@@ -8,6 +8,8 @@
   e) `npm install --save-dev webpack`    
   f) `npm install socket.io-client --save`    
 :warning: :warning: :warning: If you see any error messages, make sure you use `sudo pip` or `sudo npm`. If it says "pip cannot be found", run `which pip` and use `sudo [path to pip from which pip] install` :warning: :warning: :warning:    
+2. If you already have psql set up, *SKIP THE REST OF THE STEPS AND JUST DO THE FOLLOWING COMMAND:   
+`sudo service postgresql start`    
   
 # Getting PSQL to work with Python  
   
