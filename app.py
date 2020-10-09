@@ -35,8 +35,18 @@ db.create_all()
 db.session.commit()
 
 def emit_all_addresses(channel):
-    # TODO
-    print("TODO")
+    # TODO- content.jsx is looking for a key called allAddresses, so we want to emit allAddresses
+
+    all_addresses = [ \
+    
+        db_address.address for db_address in \
+        db.session.query(models.Usps).all()]
+
+    
+    
+    socketio.emit(channel, {
+        'allAddresses': all_addresses
+    })
 
 @socketio.on('connect')
 def on_connect():
@@ -46,6 +56,7 @@ def on_connect():
     })
     
     # TODO
+    emit_all_addresses(ADDRESSES_RECEIVED_CHANNEL)
     
 
 @socketio.on('disconnect')
