@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Socket } from './Socket';
+import './style.css';
 
 function handleSubmit(event) {
     let newAddress = document.getElementById("address_input");
@@ -17,9 +18,12 @@ function handleSubmit(event) {
 
 export function Button() {
     return (
-        <form onSubmit={handleSubmit}>
-            <input id="address_input" placeholder="Enter a USPS address"></input>
-            <button>Add to DB!</button>
-        </form>
+        <div class="container">
+            <form onSubmit={handleSubmit}>
+                <input class="textbox" id="address_input" placeholder="Enter a text message"></input>
+                
+                <button  class="button button1">Send</button>
+            </form>
+        </div>
     );
 }
