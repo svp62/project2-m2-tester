@@ -43,7 +43,7 @@ export function Content() {
         <div class="">
             <div class="headerclass">
                 <h1>Public Chat Room!</h1>
-                <p>Active Users: {activeusercount}</p>
+                <p>Active Users: {activeusercount} , ChatBot present in chat to wake up send text !! help</p>
             </div>
             <div class="log">
                 {
