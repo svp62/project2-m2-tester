@@ -85,7 +85,7 @@ def on_new_address(data):
     
     new_string = ""
     
-    if Text_input.startswith('!! ') and len(Text_input) > 3:
+    if Text_input.startswith('!! '):
         for i in range(3, len(Text_input)):
             new_string += Text_input[i]
         new_string = str(new_string.lower()) 
