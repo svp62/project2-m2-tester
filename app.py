@@ -147,8 +147,7 @@ def on_new_address(data):
         else:
             send_back = "Entry is not valid please try with !! help"
             
-    else: 
-        send_back = "please try with this format -> !! <question>"
+    
     
     
     if(len(send_back) == 0):
