@@ -47,7 +47,7 @@ export function Content() {
             </div>
             <div class="log">
                 {
-                // TODO display all addresses
+                // TODO display all messages
                     addresses.map((address, index) =>  <h4 key={index}>{address}</h4>)
                 }
             </div>
