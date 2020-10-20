@@ -8,8 +8,11 @@ import flask_socketio
 import json
 import requests
 import models 
+import re
+
 
 ADDRESSES_RECEIVED_CHANNEL = 'addresses received'
+USERS_UPDATED_CHANNEL = 'users updated'
 
 app = flask.Flask(__name__)
 
@@ -19,19 +22,17 @@ socketio.init_app(app, cors_allowed_origins="*")
 dotenv_path = join(dirname(__file__), 'sql.env')
 load_dotenv(dotenv_path)
 
-#sql_user = os.environ['SQL_USER']
-#sql_pwd = os.environ['SQL_PASSWORD']
-#dbuser = os.environ['USER']
-
 database_uri = os.environ['DATABASE_URL']
+
+name = ""
+image = ""
+active_user_count= 0
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
 
 db = flask_sqlalchemy.SQLAlchemy(app)
 db.init_app(app)
 db.app = app
-
-
 db.create_all()
 db.session.commit()
 
@@ -46,34 +47,77 @@ def emit_all_addresses(channel):
     socketio.emit(channel, {
         'allAddresses': all_addresses
     })
+def emit_all_oauth_users(channel):
+    all_users = [ \
+        user.name for user \
+        in db.session.query(models.AuthUser).all()]
+        
+    all_users_image = [\
+        user.image for user \
+        in db.session.query(models.AuthUser).all()]  
+        
+    socketio.emit(channel, {
+        'allUsers': all_users
+    })
     
-active_user_count=[]
+    socketio.emit(channel, {
+        'allUsersImage': all_users_image
+    })
+
+def push_new_user_to_db(name, image, email, auth_type):
+    
+    db.session.add(models.AuthUser(name, image, email, auth_type));
+    db.session.commit();
+        
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
+    
 
 @socketio.on('connect')
 def on_connect():
     print('Someone connected!')
-    
+    global active_user_count
     #print(requests.sid)
-    active_user_count.append('connect')
-    actuall_count=len(active_user_count)
+    active_user_count = active_user_count + 1
+    
     socketio.emit('connected', {
-        'test': actuall_count
+        'test': active_user_count
     })
     
     emit_all_addresses(ADDRESSES_RECEIVED_CHANNEL)
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     
 
 @socketio.on('disconnect')
 def on_disconnect():
     print ('Someone disconnected!')
+    global active_user_count
     
-    connection_check='connect'
-    active_user_count.remove(connection_check)
-    actuall_count=len(active_user_count)
+    active_user_count = active_user_count - 1
     socketio.emit('disconnected', {
-        'test': actuall_count
+        'test': active_user_count
     })
-
+    
+#User_name = []
+email_list = []
+@socketio.on('new google user')
+def on_new_google_user(data):
+    print("Got an event for new google user input with data:", data)
+    push_new_user_to_db(data['name'], data['image'], data['email'], models.AuthUserType.GOOGLE)
+    global name
+    global image
+    name = data['name']
+    image = data['image']
+    email_list.append(data['email'])
+    
+    socketio.emit('new google users', {
+        'name': name, 'image': image, 'email': email_list
+    })
+    
+    
+    
+    socketio.emit('connected', {
+        'test': active_user_count
+    })
 
 @socketio.on('new address input')
 def on_new_address(data):
@@ -118,7 +162,7 @@ def on_new_address(data):
                         send_back = ""
                         counter = 0
                         for i in range(0, len(api_response)):
-	                        if counter < 70:
+	                        if counter < 450:
 		                        send_back += api_response[i]
 		                        counter += 1
 	                        else:
@@ -146,19 +190,29 @@ def on_new_address(data):
                 
         else:
             send_back = "Entry is not valid please try with !! help"
+          
             
+    regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
+    url = re.findall(regex, Text_input)       
+    url_message = [x[0] for x in url]
+    actual_url = str(url_message)
+    print("we got url", actual_url )
+    
+    socketio.emit('new links', {
+         'link': actual_url,
+     })
     
     
     
     if(len(send_back) == 0):
-        Text_input2 = "User: " + Text_input
+        Text_input2 = name +": " + Text_input
         db.session.add(models.Usps(Text_input2));
         db.session.commit();
         
         emit_all_addresses(ADDRESSES_RECEIVED_CHANNEL)
         
     else:
-        Text_input2 = "User: " + Text_input
+        Text_input2 = name +": " + Text_input
         send_back2 = "Chat Bot: " + send_back
         db.session.add(models.Usps(Text_input2));
         db.session.add(models.Usps(send_back2));
@@ -169,6 +223,7 @@ def on_new_address(data):
 
 @app.route('/')
 def index():
+    emit_all_oauth_users(USERS_UPDATED_CHANNEL)
     emit_all_addresses(ADDRESSES_RECEIVED_CHANNEL)
 
     return flask.render_template("index.html")

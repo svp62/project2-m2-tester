@@ -1,7 +1,9 @@
-
 body {
- background-image: url("https://wallpaperstock.net/whatsapp-background-wallpapers_51439_1280x960.jpg");
+  
+ background-image: url("https://i0.wp.com/www.srimitra.co.in/wp-content/uploads/2019/08/WhatsApp-Background-Wallpaper.png");
+ 
 }
+
 
 .container {
   border-radius: 5px;
@@ -67,6 +69,16 @@ h4 {
   text-align: center;
   color: white;
   text-shadow: 0 0 5px black, 0 0 5px black;
+}
+
+.image{
+  float: right;
+  max-width: 60px;
+  width: 100%;
+  margin-right: 20px;
+  border-radius: 50%;
+  
+  
 }
 
 /* width */
