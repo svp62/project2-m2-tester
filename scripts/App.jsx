@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { GoogleButton } from './GoogleButton';
 import classes from './style.css';
 import { Socket } from './Socket';
 import { Content } from "./Content";
