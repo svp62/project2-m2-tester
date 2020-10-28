@@ -12,12 +12,12 @@ export default function App() {
     const handleSubmit = React.useCallback(response => {
         console.log(response);
         
-        if(response.nt) {
+        if(response.profileObj) {
             setHasError(false);
         }
         
-        let name = response.nt.Ad;
-        let email = response.nt.Wt;
+        let name = response.profileObj.name;
+        let email = response.profileObj.email;
         let image = response.profileObj.imageUrl;
   
         Socket.emit('new google user', {
